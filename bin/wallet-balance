@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+var utils = require('./cli-utils');
+program = utils.configureCommander(program);
+program
+  .option('-a, --asset <asset>', 'asset unit')
+  .parse(process.argv);
+
+var opts = {};
+if (program.asset) opts.asset = program.asset;
+
+utils.getClient(program, {
+  mustExist: true
+}, function(client) {
+  client.getBalance(opts, function(err, x) {
+    utils.die(err);
+
+    console.log('* Wallet balance');
+    Object.keys(x).forEach(function (asset) {
+      console.log('  '+asset);
+      console.log('    Total %s (Stable %s, Pending %s)', utils.renderAmount(x[asset].stable + x[asset].pending, asset), utils.renderAmount(x[asset].stable, asset), utils.renderAmount(x[asset].pending, asset));
+    });
+  });
+});

@@ -1,0 +1,137 @@
+#!/usr/bin/env node
+
+var _ = require('lodash');
+var program = require('commander');
+var utils = require('./cli-utils');
+var moment = require('moment');
+var async = require('async');
+program = utils.configureCommander(program);
+var N = 100;
+
+program
+  .option('-a, --all', 'Dont trim output to ' +  N + ' items')
+  .usage('<identifier> including wallet id, address, tx id')
+  .parse(process.argv);
+
+var args = program.args;
+if (!args[0])
+  program.help();
+
+var identifier = args[0];
+var trim = program.all ? false : true; 
+
+utils.getClient(program, {
+  mustExist: true
+}, (client) => {
+  client.getStatusByIdentifier({
+    identifier: identifier
+  }, (err, status) => {
+    utils.die(err);
+    if (!status) {
+      console.log('Could not find wallet associated to ' + identifier);
+      process.exit(0);
+    }
+
+    console.log('Found wallet associated to ' + identifier + '. Querying wallet info...');
+
+    utils.getClient(program, {
+      mustExist: true,
+      walletId: status.wallet.id,
+    }, (client) => {
+
+      async.parallel([
+        function(done) {
+          client.getMainAddresses({
+            doNotVerify: true
+          }, done);
+        },
+        function(done) {
+         client.getTxHistory({}, done);
+        },
+      ], (err, res) => {
+        utils.die(err);
+
+        displayStatus(status);
+        if (trim) {
+          if ((res[0] && res[0].length>N) ||  (res[1] && res[1].length> N))
+            console.log('\n Trimming results to %s items', N );
+
+          if (res[0] && res[0].length > N)
+            res[0] = res[0].splice(0,N);
+
+          if (res[1] && res[1].length > N)
+            res[1] = res[1].reverse().splice(0,N);
+        };
+
+        displayAddresses(res[0], status.wallet);
+        displayHistory(res[1], status.wallet);
+      });
+    });
+  });
+});
+
+
+function displayStatus(status) {
+  var w = status.wallet;
+  console.log('\n* Wallet info');
+  console.log('  ID: %s Coin:', w.id, w.coin);
+  console.log('  %s %d-of-%d%s [%s %s] wallet (status: %s)', w.network.toUpperCase(), w.m, w.n, w.singleAddress ? ' single-address' : '', w.derivationStrategy, w.addressType, w.status);
+  console.log('  Created on: %s', moment(w.createdOn * 1000));
+
+  if (w.status != 'complete') {
+    console.log('  Missing ' + (w.n - w.copayers.length) + ' copayers');
+  }
+
+  var x = status.balance;
+  console.log('\n* Balance')
+  Object.keys(x).forEach(function (asset) {
+    console.log('  '+asset);
+    console.log('    Total %s (Stable %s, Pending %s)', utils.renderAmount(x[asset].stable + x[asset].pending, asset), utils.renderAmount(x[asset].stable, asset), utils.renderAmount(x[asset].pending, asset));
+  });
+
+  if (!_.isEmpty(status.pendingTxps)) {
+    console.log("\n* TX Proposals:");
+    utils.renderTxProposals(res.pendingTxps);
+  } else {
+    console.log('\n* No pending tx proposals.');
+  }
+};
+
+function displayAddresses(addresses) {
+  if (_.isEmpty(addresses)) {
+    console.log('\n* No addresses.');
+    return;
+  }
+  console.log('\n* Main addresses (not including change addresses)');
+  _.each(addresses, function(a) {
+    console.log('  [%s] %s (%s)', moment(a.createdOn * 1000), a.address, a.path);
+  });
+};
+
+function displayHistory(history, wallet) {
+  if (_.isEmpty(history)) {
+    console.log('\n* No tx history.');
+    return;
+  }
+
+  console.log("\n* Tx history")
+  _.each(history, function(tx) {
+    var time = moment(parseInt(tx.time) * 1000).format();
+    var amount = utils.renderAmount(tx.amount);
+    var confirmations = tx.stable ? 'stable' : 'pending';
+    var proposal = tx.proposalId ? '["' + tx.message + '" by ' + tx.creatorName + '] ' : '';
+    switch (tx.action) {
+      case 'received':
+        direction = '<=';
+      break;
+      case 'moved':
+        direction = '==';
+      break;
+      case 'sent':
+        direction = '=>';
+      break;
+    }
+
+    console.log("  %s: [%s] %s %s %s %s (%s) (%s)", time, tx.unit, direction, tx.action, amount, proposal, confirmations, tx.rowid);
+  });
+};

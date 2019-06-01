@@ -1,0 +1,70 @@
+{
+  "name": "ocore-wallet",
+  "description": "A CLI Mutisig HD OByte Wallet, demo for Ocore Wallet Service",
+  "author": "guantau",
+  "version": "0.1.0",
+  "keywords": [
+    "obyte",
+    "multisig",
+    "wallet",
+    "ows",
+    "owc"
+  ],
+  "repository": {
+    "url": "git@github.com:guantau/ocore-wallet.git",
+    "type": "git"
+  },
+  "bugs": {
+    "url": "https://github.com/guantau/ocore-wallet/issues"
+  },
+  "dependencies": {
+    "async": "^2.5.0",
+    "bitcore-lib": "^8.3.0",
+    "commander": "^2.6.0",
+    "lodash": "^3.3.1",
+    "moment": "^2.9.0",
+    "npmlog": "^1.2.0",
+    "ocore-wallet-client": "git+https://github.com/guantau/ocore-wallet-client.git",
+    "qr-image": "^3.1.0",
+    "read": "^1.0.5",
+    "sjcl": "^1.0.2"
+  },
+  "devDependencies": {
+    "chai": "^3.3.0",
+    "sinon": "^1.17.1"
+  },
+  "scripts": {
+    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --reporter spec test",
+    "test": "./node_modules/.bin/mocha",
+    "coveralls": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+  },
+  "contributors": [],
+  "bin": {
+    "wallet": "./bin/wallet",
+    "wallet-address": "./bin/wallet-address",
+    "wallet-addresses": "./bin/wallet-addresses",
+    "wallet-balance": "./bin/wallet-balance",
+    "wallet-broadcast": "./bin/wallet-broadcast",
+    "wallet-confirm": "./bin/wallet-confirm",
+    "wallet-create": "./bin/wallet-create",
+    "wallet-derive": "./bin/wallet-derive",
+    "wallet-export": "./bin/wallet-export",
+    "wallet-genkey": "./bin/wallet-genkey",
+    "wallet-history": "./bin/wallet-history",
+    "wallet-import": "./bin/wallet-import",
+    "wallet-join": "./bin/wallet-join",
+    "wallet-mnemonic": "./bin/wallet-mnemonic",
+    "wallet-recreate": "./bin/wallet-recreate",
+    "wallet-reject": "./bin/wallet-reject",
+    "wallet-rm": "./bin/wallet-rm",
+    "wallet-scan": "./bin/wallet-scan",
+    "wallet-send": "./bin/wallet-send",
+    "wallet-sign": "./bin/wallet-sign",
+    "wallet-status": "./bin/wallet-status",
+    "wallet-support": "./bin/wallet-support",
+    "wallet-text": "./bin/wallet-text",
+    "wallet-txproposals": "./bin/wallet-txproposals",
+    "wallet-utxos": "./bin/wallet-utxos"
+  },
+  "licence": "MIT"
+}

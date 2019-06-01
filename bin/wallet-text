@@ -1,0 +1,48 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+var utils = require('./cli-utils');
+var _ = require('lodash');
+
+program = utils.configureCommander(program);
+
+program
+  .usage('[options] <text> [note]')
+  .description('Create a proposal for sending text.');
+
+program.on('--help', function() {
+  console.log('  Examples:');
+  console.log('');
+  console.log('    $ wallet-text "hello world"');
+  console.log('');
+});
+program.parse(process.argv);
+
+var args = program.args;
+if (!args[0])
+  program.help();
+
+var opts = {};
+
+var text = args[0];
+var note = args[1];
+
+opts.app = 'text';
+opts.params = text;
+opts.message = note;
+
+utils.getClient(program, {
+  mustExist: true
+}, function(client) {
+  client.createTxProposal(opts, function(err, txp) {
+    utils.die(err);
+    console.log(require('util').inspect(txp, {depth:null}));
+    client.publishTxProposal({
+      txp: txp
+    }, function(err) {
+      utils.die(err);
+      console.log(' * Tx created: ID %s [%s] RequiredSignatures:',
+        utils.shortID(txp.id), txp.status, txp.requiredSignatures);
+    });
+  });
+});

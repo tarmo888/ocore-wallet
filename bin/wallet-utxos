@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+
+var _ = require('lodash');
+var moment = require('moment');
+var program = require('commander');
+var utils = require('./cli-utils');
+program = utils.configureCommander(program);
+program
+  .option('-a, --asset <asset>', 'asset unit (default to null)')
+  .parse(process.argv);
+
+var args = program.args;
+
+var opts = {};
+opts.asset = program.asset || 'base';
+
+utils.getClient(program, {
+  mustExist: true
+}, function(client) {
+  client.getUtxos(opts, function(err, utxos) {
+    utils.die(err);
+    console.log("* UTXOs:")
+
+    _.each(utxos, function(utxo) {
+      var time = moment(parseInt(utxo.time) * 1000).fromNow();
+      var amount = utils.renderAmount(utxo.amount, utxo.asset);
+      var confirmations = utxo.stable ? 'stable' : 'pending';
+      console.log("  %s: [%s][%s][%s] %s (%s)", time, utxo.unit, utxo.message_index, utxo.output_index, amount, confirmations);
+    });
+  });
+});

@@ -1,0 +1,58 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+var utils = require('./cli-utils');
+var _ = require('lodash');
+
+program = utils.configureCommander(program);
+
+program
+  .option('-a, --asset <asset>', 'asset unit (default to null)')
+  .usage('[options] <address> <amount> [note]')
+  .description('Create a proposal for sending asset to a destination address.');
+
+program.on('--help', function() {
+  console.log('  Examples:');
+  console.log('');
+  console.log('    $ wallet-send SK7XCACLDMRF4VJT4WNBVL5WEFDVMS2Q 5000');
+  console.log('    $ wallet-send SK7XCACLDMRF4VJT4WNBVL5WEFDVMS2Q 10000 "dinner with friends"');
+  console.log('    $ wallet-send SK7XCACLDMRF4VJT4WNBVL5WEFDVMS2Q 5000 -a pZML61kxjqV2TcMMGr1z3z0jvAkDcOwdGzxoXjsV52Q=');
+  console.log('');
+});
+program.parse(process.argv);
+
+var args = program.args;
+if (!args[0])
+  program.help();
+
+var opts = {};
+opts.params = {};
+if (program.asset) {
+  opts.params.asset = program.asset;
+}
+opts.params.send_all = true;
+
+utils.getClient(program, {
+  mustExist: true
+}, function(client) {
+
+  var address = args[0];
+  var amount = utils.parseAmount(args[1], program.asset);
+  var note = args[2];
+  
+  opts.app = 'payment';
+  opts.params.outputs = [{address: address, amount: amount}];
+  opts.message = note;
+
+  client.createTxProposal(opts, function(err, txp) {
+    utils.die(err);
+    // console.log(require('util').inspect(txp, {depth:null}));
+    client.publishTxProposal({
+      txp: txp
+    }, function(err) {
+      utils.die(err);
+      console.log(' * Tx created: ID %s [%s] RequiredSignatures:',
+        utils.shortID(txp.id), txp.status, txp.requiredSignatures);
+    });
+  });
+});

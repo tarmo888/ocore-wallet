@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+var utils = require('./cli-utils');
+var Bitcore = require('ocore-wallet-client').Bitcore;
+var ObjectHash = require('ocore-wallet-client').ObjectHash;
+
+program = utils.configureCommander(program);
+
+program
+  .usage('[options] <path>')
+  .description('Derive from an arbitrary path from a private key.');
+
+program.on('--help', function() {
+  console.log('  Examples:');
+  console.log('');
+  console.log('    $ wallet-derive "m/44\'/0\'/0\'"');
+  console.log('    $ wallet-derive "m/1/1"');
+  console.log('');
+});
+program.parse(process.argv);
+
+var args = program.args;
+if (!args[0])
+  program.help();
+
+var path = args[0];
+
+function getExtendedPublicKey(client, path) {
+  var xpriv = client.device.xPrivKey;
+  var derivedXPriv = new Bitcore.HDPrivateKey(xpriv).derive(path);
+  return derivedXPriv.hdPublicKey.toString();
+};
+
+utils.getClient(program, {
+  mustExist: true
+}, function(client) {
+  var xpub = getExtendedPublicKey(client, path);
+  var pub = new Bitcore.HDPublicKey(xpub).publicKey;
+  var pubkey = pub.toBuffer().toString("base64");
+  var definition = ["sig", {"pubkey": pubkey}];
+  var address = ObjectHash.getChash160(definition);
+  console.log('Derived XPub:', xpub, '\nPublic key:', pub.toString(), '\nAddress:', address);
+});

@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+var _ = require('lodash');
+var fs = require('fs');
+var program = require('commander');
+var utils = require('./cli-utils');
+program = utils.configureCommander(program);
+
+program
+  .option('-b, --mints <mints>', 'min time of tx proposals')
+  .option('-e, --maxts <maxts>', 'max time of tx proposals')
+  .option('-l, --limit <limit>', 'limit of tx proposals')
+  .option('-s, --status <status>', 'status of tx proposals')
+  .parse(process.argv);
+
+var args = program.args;
+var opts = {};
+if (program.mints) opts.minTs = program.mints;
+if (program.maxts) opts.maxTs = program.maxts;
+if (program.limit) opts.limit = program.limit;
+if (program.status) opts.status = program.status
+
+utils.getClient(program, { mustExist: true }, function (client) {
+  client.getTxProposals(opts, function (err, res) {
+    utils.die(err);
+    if (!_.isEmpty(res)) {
+      console.log("* TX Proposals:");
+      utils.renderTxProposals(res);
+    } else {
+      console.log('* No pending tx proposals.');
+    }
+  });
+});
