@@ -2,21 +2,20 @@
 
 var program = require('commander');
 var utils = require('./cli-utils');
+var tools = require('ocore-wallet-client').Utils;
+var Bitcore = require('ocore-wallet-client').Bitcore;
 var _ = require('lodash');
 
 program = utils.configureCommander(program);
 
 program
-  .option('-a, --asset <asset>', 'asset unit (default to null)')
-  .usage('[options] <address> <amount> [note]')
-  .description('Create a proposal for sending asset to a destination address.');
+  .usage('[options] <address> <message>')
+  .description('Send message to address');
 
 program.on('--help', function() {
   console.log('  Examples:');
   console.log('');
-  console.log('    $ wallet-send SK7XCACLDMRF4VJT4WNBVL5WEFDVMS2Q 5000');
-  console.log('    $ wallet-send SK7XCACLDMRF4VJT4WNBVL5WEFDVMS2Q 10000 "dinner with friends"');
-  console.log('    $ wallet-send SK7XCACLDMRF4VJT4WNBVL5WEFDVMS2Q 5000 -a pZML61kxjqV2TcMMGr1z3z0jvAkDcOwdGzxoXjsV52Q=');
+  console.log('    $ wallet-send SK7XCACLDMRF4VJT4WNBVL5WEFDVMS2Q "hello world"');
   console.log('');
 });
 program.parse(process.argv);
@@ -26,33 +25,29 @@ if (!args[0])
   program.help();
 
 var opts = {};
-opts.params = {};
-if (program.asset) {
-  opts.params.asset = program.asset;
-}
-opts.params.send_all = true;
+
+var address = args[0];
+var message = args[1];
 
 utils.getClient(program, {
   mustExist: true
 }, function(client) {
 
-  var address = args[0];
-  var amount = utils.parseAmount(args[1], program.asset);
-  var note = args[2];
-  
-  opts.app = 'payment';
-  opts.params.outputs = [{address: address, amount: amount}];
-  opts.message = note;
-
-  client.createTxProposal(opts, function(err, txp) {
+  client.getWalletByAddress(address, function(err, result) {
     utils.die(err);
-    // console.log(require('util').inspect(txp, {depth:null}));
-    client.publishTxProposal({
-      txp: txp
-    }, function(err) {
+    var data = tools.asyEncryptMessage(message, client.copayer.walletPrivKey, result.pubKey);
+    var pubKey = Bitcore.PrivateKey.fromString(client.copayer.walletPrivKey).toPublicKey().toString();
+    var msg = {
+      fromWalletId: client.copayer.walletId,
+      fromPubKey: pubKey,
+      toWalletId: result.walletId,
+      toPubKey: result.pubKey,
+      toAddress: address,
+      data: data
+    };
+    client.createMessage(msg, function(err, response) {
       utils.die(err);
-      console.log(' * Tx created: ID %s [%s] RequiredSignatures:',
-        utils.shortID(txp.id), txp.status, txp.requiredSignatures);
-    });
+      console.log(response);
+    })
   });
 });

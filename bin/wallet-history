@@ -29,6 +29,7 @@ utils.getClient(program, { mustExist: true }, function (client) {
       return;
 
     console.log("* TX History:")
+    console.log(txs)
 
     _.each(txs, function(tx) {
       var time = moment(parseInt(tx.time) * 1000).fromNow();

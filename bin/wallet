@@ -11,7 +11,7 @@ program
   .command('address', 'create a new address from server')
   .command('addresses', 'list addresses')
   .command('balance', 'wallet balance')
-  .command('send <address> <amount> [note]', 'send asset')
+  .command('payment <address> <amount> [note]', 'send asset')
   .command('sign <txpId>', 'sign a transaction proposal')
   .command('reject <txpId> [reason]', 'reject a transaction proposal')
   .command('broadcast <txpId>', 'broadcast a transaction proposal to the Bitcoin network')
@@ -27,6 +27,10 @@ program
   .command('scan', 'scan all used addresses')
   .command('text <text>', 'send text')
   .command('utxos', 'get utxos')
+  .command('notifications', 'subscribe notifications')
+  .command('send', 'send message to other copayer')
+  .command('messages', 'get messages')
+  .command('update', 'update wallet information')
   .parse(process.argv);
 
 if (!program.args.length || !program.runningCommand)

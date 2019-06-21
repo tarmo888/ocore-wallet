@@ -21,7 +21,7 @@
     "async": "^2.5.0",
     "bitcore-lib": "^8.3.0",
     "commander": "^2.6.0",
-    "lodash": "^3.3.1",
+    "lodash": ">=4.17.11",
     "moment": "^2.9.0",
     "npmlog": "^1.2.0",
     "ocore-wallet-client": "git+https://github.com/guantau/ocore-wallet-client.git",
@@ -53,18 +53,21 @@
     "wallet-history": "./bin/wallet-history",
     "wallet-import": "./bin/wallet-import",
     "wallet-join": "./bin/wallet-join",
+    "wallet-messages": "./bin/wallet-messages",
     "wallet-mnemonic": "./bin/wallet-mnemonic",
+    "wallet-notifications": "./bin/wallet-notifications",
+    "wallet-payment": "./bin/wallet-payment",
     "wallet-recreate": "./bin/wallet-recreate",
     "wallet-reject": "./bin/wallet-reject",
     "wallet-rm": "./bin/wallet-rm",
     "wallet-scan": "./bin/wallet-scan",
-    "wallet-send": "./bin/wallet-send",
     "wallet-sign": "./bin/wallet-sign",
     "wallet-status": "./bin/wallet-status",
     "wallet-support": "./bin/wallet-support",
     "wallet-text": "./bin/wallet-text",
     "wallet-txproposals": "./bin/wallet-txproposals",
-    "wallet-utxos": "./bin/wallet-utxos"
+    "wallet-utxos": "./bin/wallet-utxos",
+    "wallet-update": "./bin/wallet-update"
   },
   "licence": "MIT"
 }

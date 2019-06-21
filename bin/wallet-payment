@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+var utils = require('./cli-utils');
+var _ = require('lodash');
+var ObjectHash = require('ocore-wallet-client').ObjectHash;
+
+program = utils.configureCommander(program);
+
+program
+  .option('-a, --asset <asset>', 'asset unit (default to null)')
+  .option('-x, --all <all>', 'send all bytes')
+  .option('-d, --data <data>', 'send extra data message (json format) in unit')
+  .option('-t, --text <text>', 'send extra text message in unit')
+  .usage('[options] <address> <amount> [note]')
+  .description('Create a proposal for sending asset to a destination address.');
+
+program.on('--help', function() {
+  console.log('  Examples:');
+  console.log('');
+  console.log('    $ wallet-payment SK7XCACLDMRF4VJT4WNBVL5WEFDVMS2Q 5000');
+  console.log('    $ wallet-payment SK7XCACLDMRF4VJT4WNBVL5WEFDVMS2Q 10000 "dinner with friends"');
+  console.log('    $ wallet-payment SK7XCACLDMRF4VJT4WNBVL5WEFDVMS2Q 5000 -a pZML61kxjqV2TcMMGr1z3z0jvAkDcOwdGzxoXjsV52Q=');
+  console.log('');
+});
+program.parse(process.argv);
+
+var args = program.args;
+if (!args[0])
+  program.help();
+
+var opts = {};
+opts.params = {};
+if (program.asset) opts.params.asset = program.asset;
+if (program.all) opts.params.send_all = true;
+if (program.data) {
+  opts.payload = {
+    app: 'data',
+    payload_location: 'inline',
+    payload_hash: ObjectHash.getBase64Hash(program.data, 0),
+    payload: program.data
+  }
+}
+if (program.text) {
+  opts.payload = {
+    app: 'text',
+    payload_location: 'inline',
+    payload_hash: ObjectHash.getBase64Hash(program.text, 0),
+    payload: program.text
+  }
+}
+
+utils.getClient(program, {
+  mustExist: true
+}, function(client) {
+
+  var address = args[0];
+  var amount = utils.parseAmount(args[1], program.asset);
+  var note = args[2];
+  
+  opts.app = 'payment';
+  opts.params.outputs = [{address: address, amount: amount}];
+  opts.message = note;
+
+  client.createTxProposal(opts, function(err, txp) {
+    utils.die(err);
+    // console.log(require('util').inspect(txp, {depth:null}));
+    client.publishTxProposal({
+      txp: txp
+    }, function(err) {
+      utils.die(err);
+      console.log(' * Tx created: ID %s [%s] RequiredSignatures:',
+        utils.shortID(txp.id), txp.status, txp.requiredSignatures);
+    });
+  });
+});

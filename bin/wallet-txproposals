@@ -21,7 +21,7 @@ if (program.limit) opts.limit = program.limit;
 if (program.status) opts.status = program.status
 
 utils.getClient(program, { mustExist: true }, function (client) {
-  client.getTxProposals(opts, function (err, res) {
+  client.getPendingTxProposals(opts, function (err, res) {
     utils.die(err);
     if (!_.isEmpty(res)) {
       console.log("* TX Proposals:");
