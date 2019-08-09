@@ -18,10 +18,10 @@
     "url": "https://github.com/guantau/ocore-wallet/issues"
   },
   "dependencies": {
-    "async": "^2.5.0",
-    "bitcore-lib": "^8.3.0",
+    "async": "^2.6.3",
+    "bitcore-lib": "^8.6.0",
     "commander": "^2.6.0",
-    "lodash": ">=4.17.11",
+    "lodash": "^4.17.15",
     "moment": "^2.9.0",
     "npmlog": "^1.2.0",
     "ocore-wallet-client": "git+https://github.com/guantau/ocore-wallet-client.git",
