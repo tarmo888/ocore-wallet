@@ -9,15 +9,15 @@ program
   .option('-c, --coin <coin>', 'coin (obyte)')
   .option('-n, --network <network>', 'Network for the wallet')
   .option('-p, --password', 'Encrypt wallet.')
-  .usage('[options] <walletName> <m-n> [copayerName]')
+  .usage('[options] <walletName> <m-n> <copayerName>')
   .parse(process.argv);
 
 var args = program.args;
-if (!args[0])
+if (!args[0] || !args[2])
   program.help();
 
 var walletName = args[0];
-var copayerName = args[2] || process.env.USER;
+var copayerName = args[2];
 
 var coin  = program.coin ? program.coin : 'obyte';
 var network = program.network ? program.network : 'livenet'
