@@ -14,7 +14,7 @@ A simple Command Line Interface Wallet using [Ocore Wallet Service] (https://git
 cd bin
  
 # Create a 2-of-2 wallet (~/.wallet.dat is the default filename where the wallet critical data will be stored)
-wallet create 'my wallet' 2-2 
+wallet create 'my wallet' 2-2 'copayer name'
   * Secret to share:
     NPr1esQGqnb9QZEXr2pHXbKznkNf41VCFeHXb4YA8To2xMsXnuEavv8W3rUeAiXZK1WPdjWNF9Lobyte
 
