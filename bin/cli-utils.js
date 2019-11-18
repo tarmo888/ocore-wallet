@@ -113,13 +113,15 @@ Utils.getClient = function(args, opts, cb) {
   client.getAssets({}, function (err, assets) {
     if (err) die(err);
 
-    assets.forEach(asset => {
-      Utils.ASSETS[asset.asset] = {
-        name: asset.shortName,
-        ticker: asset.ticker,
-        decimals: asset.decimals
-      };
-    });
+    if (Array.isArray(assets)) {
+      assets.forEach(asset => {
+        Utils.ASSETS[asset.asset] = {
+          name: asset.shortName,
+          ticker: asset.ticker,
+          decimals: asset.decimals
+        };
+      });
+    }
 
     storage.load(function(err, walletData) {
       if (err) {
