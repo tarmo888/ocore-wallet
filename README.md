@@ -27,7 +27,7 @@ wallet status
 wallet genkey -f pete.dat
 
 # Join the wallet as another copayer (add -p to encrypt credentials file)
-wallet -f pete.dat join NPr1esQGqnb9QZEXr2pHXbKznkNf41VCFeHXb4YA8To2xMsXnuEavv8W3rUeAiXZK1WPdjWNF9Lobyte
+wallet -f pete.dat join NPr1esQGqnb9QZEXr2pHXbKznkNf41VCFeHXb4YA8To2xMsXnuEavv8W3rUeAiXZK1WPdjWNF9Lobyte 'copayer name'
    
 # Use -f or WALLET_FILE to setup the wallet data file
 export WALLET_FILE=pete.dat
