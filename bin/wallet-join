@@ -5,15 +5,15 @@ var utils = require('./cli-utils');
 program = utils.configureCommander(program);
 
 program
-  .usage('[options] <secret> [copayerName]')
+  .usage('[options] <secret> <copayerName>')
   .parse(process.argv);
 
 var args = program.args;
-if (!args[0])
+if (!args[0] || !args[1])
   program.help();
 
 var secret = args[0];
-var copayerName = args[1] || process.env.USER;
+var copayerName = args[1];
 
 utils.getClient(program, { doNotComplete: true }, function (client) {
   client.joinWallet(secret, copayerName, {}, function(err, wallet) {
