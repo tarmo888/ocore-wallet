@@ -15,5 +15,8 @@ utils.getClient(program, {
 }, function(client) {
   client.initialize({notificationIncludeOwn: true}, function(err) {
     utils.die(err);
+    client.on('notification', function(notification) {
+      console.log(notification);
+    });
   });
 });
