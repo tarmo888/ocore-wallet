@@ -25,6 +25,7 @@ utils.getClient(program, { mustExist: true }, function (client) {
     utils.die(err);
     if (!_.isEmpty(res)) {
       console.log("* TX Proposals:");
+      // console.log(require('util').inspect(res, {depth:null}));
       utils.renderTxProposals(res);
     } else {
       console.log('* No pending tx proposals.');

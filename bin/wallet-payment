@@ -34,11 +34,12 @@ opts.params = {};
 if (program.asset) opts.params.asset = program.asset;
 if (program.all) opts.params.send_all = true;
 if (program.data) {
+  data = JSON.parse(program.data)
   opts.payload = {
     app: 'data',
     payload_location: 'inline',
-    payload_hash: ObjectHash.getBase64Hash(program.data, 0),
-    payload: program.data
+    payload_hash: ObjectHash.getBase64Hash(data, 0),
+    payload: data
   }
 }
 if (program.text) {
